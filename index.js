@@ -74,28 +74,32 @@ const TikController = (()=>{
             return;
         }
 
-        if (!GamingBoard.placingMarkers(index,currentPlayer.marker)) {
+        if (GamingBoard.placingMarkers(index,currentPlayer.marker)) {
+            HudDisplay.render();
             console.log("The cell is already taken. Please choose another one.");
-            return;
-        }
+            // return;
+        
 
         console.log(GamingBoard.getBoard());
 
         if (checkingWinner()){
-            console.log(`${currentPlayer.name} wins!.`)
+            document.getElementById("status").textContent = `The winner is ${currentPlayer.name}!`;
+            // console.log(`${currentPlayer.name} wins!.`)
             gameOver = true;
             return;
         }
         
         if (checkingTie()){
-            console.log("It is a tie!.")
+            document.getElementById("status").textContent = `It's a tie!`
+            // console.log("It is a tie!.")
             gameOver = true;
             return;
         }
 
         changuePlayer();
+        document.getElementById("status").textContent = `${currentPlayer.name}'s turn.`
         console.log(`It is the turn of ${currentPlayer.name}!`)
-    
+    }
         
     }
 
@@ -103,9 +107,38 @@ const TikController = (()=>{
         GamingBoard.reset();
         gameOver= false;
         currentPlayer = player1;
+        HudDisplay.render();
+        document.getElementById("status").textContent = `Player ${currentPlayer.name}'s turn`;
         console.log('Game got reseted, Player 1 starts!.')
     }
 
     return {playingRound,gameReset}
 })()
 
+
+const HudDisplay = (()=>{
+
+    const boardTiktac = document.getElementById("board");
+
+
+    const render = () => {
+        const resetBtn = document.createElement("button");
+        resetBtn.textContent = "Reset the Game";
+        boardTiktac.innerHTML = "";
+        GamingBoard.getBoard().forEach((cell,index)=>{
+            const cellElement = document.createElement("div");
+            cellElement.classList.add("cell");
+            cellElement.textContent = cell;
+            cellElement.addEventListener("click",()=> TikController.playingRound(index));
+            boardTiktac.appendChild(cellElement);
+            resetBtn.addEventListener("click",()=> TikController.gameReset());
+            boardTiktac.appendChild(resetBtn);
+        });
+    };
+
+
+    render();
+    document.getElementById("status").textContent = "Player X's turn";
+
+    return {render};
+})()
